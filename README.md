@@ -26,35 +26,44 @@ Full numbers, every bug found, and the honest limitations:
 
 ## Quick start
 
+### Prerequisites
+* Python 3.10 - 3.13
+* [Ollama](https://ollama.ai) with `qwen3:8b` (optional, for natural language Cypher generation):
+  ```bash
+  ollama pull qwen3:8b
+  ```
+
+### Installation
 ```bash
-cd /Users/nikhilsridhara/nlp
-source .venv/bin/activate
+git clone https://github.com/ai4333/nlp-.git
+cd nlp-
+python3 -m venv .venv
+source .venv/bin/activate    # On Windows: .venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
-**1 · Ingest a real drawing** — no trained detector needed
-```bash
-python scripts/ingest_blueprint.py path/to/drawing.pdf --graph
-```
-Or the benchmark corpus with ground-truth detection:
-```bash
-python scripts/ingest.py --n 14 --split val --detector gt
-```
-
-**2 · Build the knowledge graph**
-```bash
-python scripts/build_graph.py --fresh
-```
-
-**3 · Run the benchmark**
-```bash
-python scripts/evaluate.py --per-type 32
-```
-
-**4 · Open the app**
+### Running the App
 ```bash
 python -m streamlit run src/edi/app/streamlit_app.py --server.port 8520
 ```
 Then visit **http://localhost:8520**
+
+### Ingesting Drawings
+**1 · Ingest a real drawing** (Blueprint mode — zero-shot, no training needed):
+```bash
+python scripts/ingest_blueprint.py path/to/drawing.pdf --graph
+```
+
+**2 · Build/Rebuild the knowledge graph:**
+```bash
+python scripts/build_graph.py --fresh
+```
+
+**3 · Run test suite & health check:**
+```bash
+python scripts/healthcheck.py
+pytest tests/ -q
+```
 
 ---
 
