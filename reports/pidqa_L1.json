@@ -1,0 +1,25 @@
+{
+  "level": "L1_graph_quality",
+  "sheets": 17,
+  "n_questions": 2176,
+  "overall_accuracy": 0.8038,
+  "by_type": {
+    "simple_counting": {
+      "accuracy": 0.9908,
+      "n": 544
+    },
+    "spatial_connection": {
+      "accuracy": 0.8879,
+      "n": 544
+    },
+    "spatial_counting": {
+      "accuracy": 0.7923,
+      "n": 544
+    },
+    "value_based": {
+      "accuracy": 0.5441,
+      "n": 544
+    }
+  },
+  "n_errors": 0
+}

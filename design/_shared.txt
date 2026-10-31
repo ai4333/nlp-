@@ -1,0 +1,9 @@
+Shared visual language (pasted into each artboard's helmet):
+- bg #05070a, surface #0a0e14 / #0e141c, hairlines rgba(125,205,255,.13)
+- accents share chroma .13 / lightness .82, hue only varies:
+  cyan  oklch(.82 .13 210)  primary
+  amber oklch(.82 .13 75)   attention
+  green oklch(.82 .13 155)  nominal
+  red   oklch(.72 .15 25)   fault
+- Space Grotesk (UI) + IBM Plex Mono (all data)
+- corner brackets, 1px rules, tick marks, faint grid, no gradients-as-decoration

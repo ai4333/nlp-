@@ -1,0 +1,97 @@
+# Engineering Drawing Intelligence - pipeline configuration
+project:
+  name: edi
+  root: /Users/nikhilsridhara/nlp
+
+paths:
+  dataset:  data/raw/DigitizePID/DigitizePID_Dataset
+  pidqa:    data/raw/PIDQA
+  interim:  data/interim
+  tiles:    data/tiles
+  graph:    data/graph
+  index:    data/index
+  models:   models
+  reports:  reports
+
+input:
+  render_dpi: 300
+  min_long_edge_px: 2500
+
+tiling:
+  tile_size: 1024
+  stride: 768          # 25% overlap
+  min_box_visible: 0.4 # keep a box in a tile only if >=40% of its area survives the crop
+  pad_edges: true
+
+detection:
+  weights: models/yolo_pid.pt
+  imgsz: 1024
+  # Tuned against full-sheet ground truth for the 512px detector
+  # (scratch/sweep_conf.py). Defaults of 0.25/0.55 gave F1 0.83; these give
+  # 0.99. The NMS value matters most: 512px tiles at stride 384 overlap heavily,
+  # and a lenient IoU leaves the duplicates in.
+  conf_threshold: 0.88
+  iou_threshold: 0.45
+  device: mps
+  merge_iou: 0.20      # global NMS across tile seams
+  review_below_conf: 0.50
+  n_classes: 32
+
+ocr:
+  engine: paddleocr
+  use_angle_cls: true
+  lang: en
+  min_confidence: 0.60
+  workers: 3           # parallel OCR processes; 0 = serial
+  roi_pad_px: 85       # search radius around a symbol for its tag
+
+entity_resolution:
+  max_tag_distance_px: 150
+  fuzzy_threshold: 85
+  review_below: 0.70
+
+relations:
+  # Chosen by sweeping against the PIDQA spatial questions
+  # (scripts/sweep_relations.py). See docs/RESULTS.md for the full table.
+  #   mst / erase 20 / snap 24  ->  sp.count 0.787  sp.conn 0.900   <- chosen
+  #   mst / erase  3 / snap  7  ->  sp.count 0.762  sp.conn 0.900
+  #   walk       (blocking BFS) ->  sp.count 0.706  sp.conn 0.906
+  #   segment    (shared run)   ->  sp.count 0.744  sp.conn 0.706
+  # NOTE: snap MUST exceed symbol_erase_pad_px. Erasing cuts pipes N px from
+  # each symbol, so a smaller snap attaches nothing at all and the graph comes
+  # out empty.
+  #   max_edge 1600 -> sp.count 0.794  sp.conn 0.900  overall 0.8656  <- chosen
+  #   max_edge 1100 -> sp.count 0.806  sp.conn 0.863  (trades connection away)
+  #   max_edge  800 -> sp.count 0.825  sp.conn 0.838
+  mode: mst                 # mst | walk | segment | clique
+  symbol_erase_pad_px: 20
+  endpoint_snap_px: 24
+  max_edge_px: 1600         # 0 disables
+  # Tried and rejected: splitting solid (process) from dashed (signal) runs.
+  # After a long directional opening the dashed lines are already mostly joined,
+  # so the split yields 28 vs 552 edges and scores WORSE (0.8641 vs 0.8656).
+  # Code kept in _runs() as an ablation; leave this on 'any'.
+  line_class: any           # any | solid | dashed
+  min_line_length_px: 25
+  max_line_gap_px: 14
+  junction_tolerance_px: 10
+
+llm:
+  cypher_model: qwen3:8b
+  answer_model: qwen3:8b
+  # The rig builder's conversation model. Any local Ollama model works; a coder
+  # model is a good fit because the task is emitting a JSON spec, not prose.
+  rig_model: qwen3:8b
+  vlm_model: qwen3-vl:8b
+  embed_model: bge-m3
+  temperature: 0.0
+  host: http://localhost:11434
+  num_ctx: 8192
+
+retrieval:
+  top_k: 8
+  fewshot_k: 6
+
+graph:
+  backend: kuzu
+  path: data/graph/edi_kg

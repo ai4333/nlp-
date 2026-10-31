@@ -1,0 +1,213 @@
+{
+  "weights": "models/yolo_pid.pt",
+  "sheets": 20,
+  "iou": 0.5,
+  "tp": 2296,
+  "fp": 21,
+  "fn": 15,
+  "precision": 0.9909,
+  "recall": 0.9935,
+  "f1": 0.9922,
+  "per_sheet": [
+    {
+      "sheet": "2",
+      "gt": 111,
+      "pred": 111,
+      "tp": 109,
+      "fp": 2,
+      "fn": 2,
+      "precision": 0.982,
+      "recall": 0.982
+    },
+    {
+      "sheet": "5",
+      "gt": 93,
+      "pred": 93,
+      "tp": 92,
+      "fp": 1,
+      "fn": 1,
+      "precision": 0.9892,
+      "recall": 0.9892
+    },
+    {
+      "sheet": "6",
+      "gt": 118,
+      "pred": 118,
+      "tp": 117,
+      "fp": 1,
+      "fn": 1,
+      "precision": 0.9915,
+      "recall": 0.9915
+    },
+    {
+      "sheet": "8",
+      "gt": 108,
+      "pred": 108,
+      "tp": 108,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    {
+      "sheet": "11",
+      "gt": 107,
+      "pred": 107,
+      "tp": 107,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    {
+      "sheet": "13",
+      "gt": 112,
+      "pred": 113,
+      "tp": 111,
+      "fp": 2,
+      "fn": 1,
+      "precision": 0.9823,
+      "recall": 0.9911
+    },
+    {
+      "sheet": "15",
+      "gt": 103,
+      "pred": 103,
+      "tp": 103,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    {
+      "sheet": "17",
+      "gt": 86,
+      "pred": 86,
+      "tp": 86,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    {
+      "sheet": "19",
+      "gt": 121,
+      "pred": 122,
+      "tp": 119,
+      "fp": 3,
+      "fn": 2,
+      "precision": 0.9754,
+      "recall": 0.9835
+    },
+    {
+      "sheet": "22",
+      "gt": 108,
+      "pred": 108,
+      "tp": 108,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    {
+      "sheet": "31",
+      "gt": 170,
+      "pred": 171,
+      "tp": 168,
+      "fp": 3,
+      "fn": 2,
+      "precision": 0.9825,
+      "recall": 0.9882
+    },
+    {
+      "sheet": "35",
+      "gt": 162,
+      "pred": 162,
+      "tp": 160,
+      "fp": 2,
+      "fn": 2,
+      "precision": 0.9877,
+      "recall": 0.9877
+    },
+    {
+      "sheet": "37",
+      "gt": 161,
+      "pred": 161,
+      "tp": 161,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    {
+      "sheet": "41",
+      "gt": 88,
+      "pred": 89,
+      "tp": 88,
+      "fp": 1,
+      "fn": 0,
+      "precision": 0.9888,
+      "recall": 1.0
+    },
+    {
+      "sheet": "42",
+      "gt": 108,
+      "pred": 108,
+      "tp": 108,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    {
+      "sheet": "44",
+      "gt": 98,
+      "pred": 98,
+      "tp": 98,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    {
+      "sheet": "45",
+      "gt": 109,
+      "pred": 110,
+      "tp": 109,
+      "fp": 1,
+      "fn": 0,
+      "precision": 0.9909,
+      "recall": 1.0
+    },
+    {
+      "sheet": "47",
+      "gt": 102,
+      "pred": 102,
+      "tp": 102,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    {
+      "sheet": "51",
+      "gt": 134,
+      "pred": 135,
+      "tp": 131,
+      "fp": 4,
+      "fn": 3,
+      "precision": 0.9704,
+      "recall": 0.9776
+    },
+    {
+      "sheet": "58",
+      "gt": 112,
+      "pred": 112,
+      "tp": 111,
+      "fp": 1,
+      "fn": 1,
+      "precision": 0.9911,
+      "recall": 0.9911
+    }
+  ]
+}

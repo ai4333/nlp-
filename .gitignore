@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+*.pt
+*.zip
+data/raw/
+data/tiles*/
+data/interim/
+data/graph/
+recordings/*.webm
+scratch/
+runs/
+.DS_Store
+.streamlit/secrets.toml
+.claude/

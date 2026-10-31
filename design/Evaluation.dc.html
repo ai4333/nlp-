@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <style>
+    :root{
+      --bg:#05070a; --s1:#0a0e14; --s2:#0e141c; --s3:#141c26;
+      --ln:rgba(125,205,255,.13); --ln2:rgba(125,205,255,.26);
+      --tx:#dbe7f0; --tx2:#7d94a8; --tx3:#4d6072;
+      --cy:oklch(.82 .13 210); --am:oklch(.82 .13 75);
+      --gn:oklch(.82 .13 155); --rd:oklch(.72 .15 25);
+      --mono:'IBM Plex Mono',ui-monospace,monospace;
+      --ui:'Space Grotesk',system-ui,sans-serif;
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--ui);}
+    a{color:var(--cy);text-decoration:none;} a:hover{color:#9fe9ff;}
+    .grid-bg{position:absolute;inset:0;pointer-events:none;
+      background-image:linear-gradient(rgba(125,205,255,.028) 1px,transparent 1px),
+                       linear-gradient(90deg,rgba(125,205,255,.028) 1px,transparent 1px);
+      background-size:52px 52px;}
+    .brk{position:relative;}
+    .brk::before,.brk::after{content:'';position:absolute;width:9px;height:9px;
+      border-color:var(--ln2);border-style:solid;pointer-events:none;}
+    .brk::before{left:-1px;top:-1px;border-width:1px 0 0 1px;}
+    .brk::after{right:-1px;bottom:-1px;border-width:0 1px 1px 0;}
+    .mono{font-family:var(--mono);}
+    .lbl{font:600 9px var(--ui);letter-spacing:.19em;text-transform:uppercase;color:var(--tx3);}
+  </style>
+</helmet>
+
+<div style="width:1440px;height:900px;background:var(--bg);position:relative;overflow:hidden;padding:22px">
+  <div class="grid-bg"></div>
+  <div style="position:relative;z-index:1">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+      <span class="lbl" style="font-size:10px;color:var(--cy)">EVALUATION · PIDQA BENCHMARK</span>
+      <div style="flex:1;height:1px;background:var(--ln)"></div>
+      <span class="mono" style="font-size:10.5px;color:var(--tx3)">2 176 QUESTIONS · 17 SHEETS · 0 QUERY ERRORS</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px">
+      <sc-for list="{{metrics}}" as="m" hint-placeholder-count="4">
+        <div class="brk" style="border:1px solid var(--ln);background:var(--s1);padding:17px 18px;position:relative">
+          <div style="position:absolute;left:0;top:0;height:2px;width:{{m.pct}};background:{{m.c}};box-shadow:0 0 10px {{m.c}}"></div>
+          <div class="lbl" style="margin-bottom:9px">{{m.k}}</div>
+          <div class="mono" style="font-size:33px;font-weight:600;letter-spacing:-.02em;color:{{m.c}};line-height:1">{{m.v}}</div>
+          <div class="mono" style="font-size:9.5px;color:var(--tx3);margin-top:9px">n = {{m.n}}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:14px;margin-bottom:20px">
+      <div class="brk" style="border:1px solid rgba(77,216,240,.3);background:linear-gradient(160deg,rgba(77,216,240,.08),transparent);padding:17px 18px">
+        <div class="lbl" style="margin-bottom:9px">Overall · L1 graph quality</div>
+        <div class="mono" style="font-size:40px;font-weight:600;color:var(--cy);line-height:1;letter-spacing:-.03em">0.8612</div>
+        <div class="mono" style="font-size:9.5px;color:var(--tx3);margin-top:10px">REFERENCE CYPHER ON OUR GRAPH</div>
+      </div>
+      <div style="border:1px solid var(--ln);background:var(--s1);padding:17px 18px">
+        <div class="lbl" style="margin-bottom:9px">Overall · L3 end-to-end</div>
+        <div class="mono" style="font-size:40px;font-weight:600;color:var(--gn);line-height:1;letter-spacing:-.03em">0.8542</div>
+        <div class="mono" style="font-size:9.5px;color:var(--tx3);margin-top:10px">OUR GENERATED CYPHER · 48 SAMPLED</div>
+      </div>
+      <div style="border:1px solid var(--ln);background:var(--s1);padding:17px 18px">
+        <div class="lbl" style="margin-bottom:9px">Executable query rate</div>
+        <div class="mono" style="font-size:40px;font-weight:600;color:var(--gn);line-height:1;letter-spacing:-.03em">1.000</div>
+        <div class="mono" style="font-size:9.5px;color:var(--tx3);margin-top:10px">EVERY QUERY PARSED AND RAN</div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:11px">
+      <span class="lbl">Failure cases · 138 of 544 value queries</span>
+      <div style="flex:1;height:1px;background:var(--ln)"></div>
+    </div>
+    <div class="brk" style="border:1px solid var(--ln);background:var(--s1);overflow:hidden">
+      <div style="display:grid;grid-template-columns:64px 150px 1fr 150px 150px;padding:10px 16px;border-bottom:1px solid var(--ln);background:var(--s2)">
+        <sc-for list="{{cols}}" as="c" hint-placeholder-count="5"><div class="lbl">{{c}}</div></sc-for>
+      </div>
+      <sc-for list="{{rows}}" as="r" hint-placeholder-count="6">
+        <div style="display:grid;grid-template-columns:64px 150px 1fr 150px 150px;padding:10px 16px;border-bottom:1px solid rgba(125,205,255,.05);align-items:center">
+          <span class="mono" style="font-size:11px;color:var(--tx3)">{{r.s}}</span>
+          <span style="font-size:11px;color:var(--tx2)">{{r.t}}</span>
+          <span style="font-size:11.5px;color:var(--tx)">{{r.q}}</span>
+          <span class="mono" style="font-size:11px;color:var(--gn)">{{r.e}}</span>
+          <span class="mono" style="font-size:11px;color:var(--rd)">{{r.g}}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props="{}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      metrics: [
+        { k: "Simple counting", v: "1.0000", n: "544", c: "#3ee0a0", pct: "100%" },
+        { k: "Spatial connection", v: "0.9044", n: "544", c: "#3ee0a0", pct: "90%" },
+        { k: "Spatial counting", v: "0.7941", n: "544", c: "#4dd8f0", pct: "79%" },
+        { k: "Value / tags", v: "0.7463", n: "544", c: "#f0b23d", pct: "75%" },
+      ],
+      cols: ["SHEET", "TYPE", "QUESTION", "EXPECTED", "RETURNED"],
+      rows: [
+        { s: "0", t: "spatial counting", q: "How many class 25 symbols are linked directly to class 20?", e: "1", g: "2" },
+        { s: "0", t: "spatial counting", q: "Count the symbols with class 23 that are directly linked to class 8", e: "1", g: "2" },
+        { s: "2", t: "value / tags", q: "Give me the class 6 tags beginning with KL", e: "3 tags", g: "2 tags" },
+        { s: "5", t: "spatial counting", q: "What is the count of class 32 symbols directly linked to 8?", e: "1", g: "2" },
+        { s: "6", t: "value / tags", q: "List the class 23 insulation markings", e: "INS 20C", g: "INS 20" },
+        { s: "9", t: "spatial counting", q: "How many class 5 have direct connections to class 15?", e: "0", g: "1" },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "mode": "mst",
+  "params": {
+    "erase_pad": 20,
+    "snap": 24
+  },
+  "scores": {
+    "edges": 557,
+    "spatial_counting": 0.7875,
+    "spatial_connection": 0.9,
+    "overall": 0.8641
+  }
+}

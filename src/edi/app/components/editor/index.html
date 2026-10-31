@@ -1,0 +1,232 @@
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+ html,body{margin:0;padding:0;background:#0c0d10;overflow:hidden;
+   font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
+ #wrap{position:relative;width:100%;border-radius:10px;overflow:hidden;
+   border:1px solid rgba(255,255,255,.09);background:#0c0d10;}
+ #stage{position:absolute;inset:0;overflow:hidden;cursor:grab;}
+ #stage.drag{cursor:grabbing;} #stage.draw{cursor:crosshair;}
+ #stage.connect,#stage.erase{cursor:pointer;}
+ #inner{position:absolute;transform-origin:0 0;will-change:transform;}
+ #inner img{display:block;} #ov{position:absolute;left:0;top:0;overflow:visible;}
+ .bar{position:absolute;left:10px;top:10px;display:flex;gap:5px;z-index:6;flex-wrap:wrap;}
+ .btn{background:rgba(18,20,25,.94);border:1px solid rgba(255,255,255,.13);color:#d5d8de;
+   border-radius:8px;padding:6px 11px;font-size:11.5px;cursor:pointer;
+   backdrop-filter:blur(10px);transition:.13s;font-weight:500;user-select:none;}
+ .btn:hover{background:rgba(38,42,50,.96);border-color:rgba(255,255,255,.26);}
+ .btn.on{background:#5b9dff;border-color:#5b9dff;color:#04070d;font-weight:650;}
+ .btn.zoom{padding:6px 9px;min-width:28px;text-align:center;}
+ .hint{position:absolute;left:10px;bottom:10px;z-index:6;font-size:11px;color:#8b909b;
+   background:rgba(14,15,19,.9);padding:6px 11px;border-radius:8px;
+   border:1px solid rgba(255,255,255,.07);max-width:70%;}
+ .hint b{color:#8fbdff;}
+ .hud{position:absolute;right:10px;bottom:10px;z-index:6;
+   font:500 11px ui-monospace,Menlo,monospace;color:#7d828d;
+   background:rgba(14,15,19,.9);padding:5px 10px;border-radius:8px;
+   border:1px solid rgba(255,255,255,.07);}
+ .card{position:absolute;right:10px;top:10px;width:216px;z-index:7;display:none;
+   background:rgba(16,18,23,.97);border:1px solid rgba(255,255,255,.12);border-radius:10px;
+   padding:12px 13px;backdrop-filter:blur(14px);box-shadow:0 10px 32px rgba(0,0,0,.55);}
+ .card h4{margin:0 0 2px;font-size:13px;color:#f0f1f4;font-weight:600;}
+ .card .tg{font:600 12px ui-monospace,Menlo,monospace;color:#5b9dff;margin-bottom:8px;}
+ .card dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:2px 9px;
+   font-size:11px;color:#9aa0ab;}
+ .card dd{margin:0;color:#dfe2e8;font-family:ui-monospace,Menlo,monospace;text-align:right;}
+ rect.sym{fill:transparent;stroke-width:1.4;vector-effect:non-scaling-stroke;cursor:pointer;}
+ rect.sym:hover{stroke-width:3.4;}
+ rect.sym.sel{stroke:#fff!important;stroke-width:3.4;fill:rgba(255,255,255,.14);}
+ rect.sym.pick{stroke:#f0b429!important;stroke-width:3.6;fill:rgba(240,180,41,.2);}
+ rect.sym.edited{stroke-dasharray:4 3;}
+ rect.new{fill:rgba(91,157,255,.18);stroke:#5b9dff;stroke-width:2;
+   vector-effect:non-scaling-stroke;stroke-dasharray:5 3;}
+ line.rel{stroke:rgba(127,135,148,.5);stroke-width:1;vector-effect:non-scaling-stroke;}
+ line.ctl{stroke:rgba(63,207,142,.8);stroke-width:1.6;vector-effect:non-scaling-stroke;
+   stroke-dasharray:5 4;}
+ text.lbl{fill:#c9ced8;font:500 9px ui-monospace,Menlo,monospace;pointer-events:none;
+   paint-order:stroke;stroke:rgba(8,9,12,.85);stroke-width:2.6px;}
+</style></head>
+<body><div id="wrap">
+  <div id="stage"><div id="inner"><img id="base" draggable="false"><svg id="ov"></svg></div></div>
+  <div class="bar" id="bar"></div>
+  <div class="card" id="card"></div>
+  <div class="hint" id="hint"></div>
+  <div class="hud" id="hud"></div>
+</div>
+<script>
+(function(){
+  const S=document.getElementById('stage'), IN=document.getElementById('inner'),
+        IMG=document.getElementById('base'), OV=document.getElementById('ov'),
+        BAR=document.getElementById('bar'), CARD=document.getElementById('card'),
+        HINT=document.getElementById('hint'), HUD=document.getElementById('hud'),
+        WRAP=document.getElementById('wrap'), NS='http://www.w3.org/2000/svg';
+
+  let D=null, scale=1, z=1, ox=0, oy=0, mode='inspect', sel=null, pick=[], nonce=0;
+  let drawing=null, ready=false;
+
+  // ---- Streamlit component protocol (plain JS, no build step) ----
+  function post(t,o){ window.parent.postMessage(Object.assign({isStreamlitMessage:true,type:t},o||{}),'*'); }
+  function setValue(v){ post('streamlit:setComponentValue',{value:v,dataType:'json'}); }
+  function setHeight(h){ post('streamlit:setFrameHeight',{height:h}); }
+
+  const MODES=[['inspect','Inspect'],['draw','Add symbol'],['connect','Connect'],['erase','Delete']];
+  const HINTS={
+    inspect:'Click a symbol to inspect it.',
+    draw:'<b>Drag</b> a box around the symbol you want to add.',
+    connect:'Click <b>two</b> symbols to connect them.',
+    erase:'Click a symbol to <b>delete</b> it.'};
+
+  function buildBar(){
+    BAR.innerHTML =
+      MODES.map(([k,l])=>`<div class="btn ${k===mode?'on':''}" data-m="${k}">${l}</div>`).join('')
+      + `<div class="btn zoom" data-z="in">+</div><div class="btn zoom" data-z="out">&minus;</div>`
+      + `<div class="btn zoom" data-z="fit">fit</div>`;
+    BAR.querySelectorAll('[data-m]').forEach(el=>el.onclick=()=>{
+      mode=el.dataset.m; sel=null; pick=[]; drawing=null; CARD.style.display='none';
+      buildBar(); paint(); S.className = mode==='draw'?'draw':(mode==='inspect'?'':mode);
+      HINT.innerHTML=HINTS[mode];
+    });
+    BAR.querySelectorAll('[data-z]').forEach(el=>el.onclick=()=>{
+      const k=el.dataset.z;
+      if(k==='fit') fit();
+      else { const f=k==='in'?1.35:1/1.35, r=S.getBoundingClientRect();
+             const mx=r.width/2,my=r.height/2, nz=Math.max(.05,Math.min(14,z*f));
+             ox=mx-(mx-ox)*(nz/z); oy=my-(my-oy)*(nz/z); z=nz; apply(); }
+    });
+  }
+
+  function paint(){
+    if(!D) return;
+    OV.innerHTML='';
+    const pos={};
+    D.nodes.forEach(n=>pos[n.id]=[n.cx,n.cy]);
+    (D.edges||[]).forEach(e=>{
+      const a=pos[e.a], b=pos[e.b]; if(!a||!b) return;
+      const l=document.createElementNS(NS,'line');
+      l.setAttribute('x1',a[0]);l.setAttribute('y1',a[1]);
+      l.setAttribute('x2',b[0]);l.setAttribute('y2',b[1]);
+      l.setAttribute('class', e.t==='k'?'ctl':'rel'); OV.appendChild(l);
+    });
+    D.nodes.forEach(n=>{
+      const r=document.createElementNS(NS,'rect');
+      r.setAttribute('x',n.x);r.setAttribute('y',n.y);
+      r.setAttribute('width',Math.max(n.w,3));r.setAttribute('height',Math.max(n.h,3));
+      r.setAttribute('stroke',n.col);
+      let cls='sym'+(n.id===sel?' sel':'')+(pick.includes(n.id)?' pick':'')+(n.ed?' edited':'');
+      r.setAttribute('class',cls); r.dataset.id=n.id;
+      r.addEventListener('mousedown',ev=>ev.stopPropagation());
+      r.addEventListener('click',ev=>{ ev.stopPropagation(); onSymbol(n); });
+      OV.appendChild(r);
+      if(n.t){ const t=document.createElementNS(NS,'text');
+        t.setAttribute('x',n.x);t.setAttribute('y',n.y-3);
+        t.setAttribute('class','lbl');t.textContent=n.t.slice(0,16);OV.appendChild(t); }
+    });
+    if(drawing){
+      const r=document.createElementNS(NS,'rect');
+      const x=Math.min(drawing.x0,drawing.x1), y=Math.min(drawing.y0,drawing.y1);
+      r.setAttribute('x',x);r.setAttribute('y',y);
+      r.setAttribute('width',Math.abs(drawing.x1-drawing.x0));
+      r.setAttribute('height',Math.abs(drawing.y1-drawing.y0));
+      r.setAttribute('class','new'); OV.appendChild(r);
+    }
+  }
+
+  function onSymbol(n){
+    if(mode==='erase'){ setValue({action:'delete',id:n.id,nonce:++nonce}); return; }
+    if(mode==='connect'){
+      if(pick.includes(n.id)) pick=pick.filter(x=>x!==n.id);
+      else pick.push(n.id);
+      if(pick.length===2){ setValue({action:'connect',a:pick[0],b:pick[1],nonce:++nonce}); pick=[]; }
+      paint(); return;
+    }
+    sel=n.id; paint();
+    CARD.innerHTML=`<h4>${n.n}</h4><div class="tg">${n.t||'— untagged —'}</div>
+      <dl><dt>id</dt><dd>${n.id}</dd><dt>class</dt><dd>${n.c}</dd>
+      <dt>detect</dt><dd>${(n.dc||0).toFixed(2)}</dd>
+      <dt>tag conf</dt><dd>${(n.tc||0).toFixed(2)}</dd></dl>`;
+    CARD.style.display='block';
+    setValue({action:'select',id:n.id,nonce:++nonce});
+  }
+
+  // ---- viewport ----
+  function apply(){ IN.style.transform=`translate(${ox}px,${oy}px) scale(${z})`;
+    HUD.textContent=`${Math.round(z*100)}% · ${D?D.nodes.length:0} entities`; }
+  function fit(){ const r=S.getBoundingClientRect();
+    z=Math.min(r.width/D.vw, r.height/D.vh)*0.97;
+    ox=(r.width-D.vw*z)/2; oy=(r.height-D.vh*z)/2; apply(); }
+  function toSheet(clientX,clientY){
+    const r=S.getBoundingClientRect();
+    return [ ((clientX-r.left-ox)/z)/scale, ((clientY-r.top-oy)/z)/scale ];
+  }
+  function toLocal(clientX,clientY){
+    const r=S.getBoundingClientRect();
+    return [ (clientX-r.left-ox)/z, (clientY-r.top-oy)/z ];
+  }
+
+  S.addEventListener('wheel',e=>{ e.preventDefault();
+    const r=S.getBoundingClientRect(), mx=e.clientX-r.left, my=e.clientY-r.top;
+    const f=e.deltaY<0?1.14:1/1.14, nz=Math.max(.05,Math.min(14,z*f));
+    ox=mx-(mx-ox)*(nz/z); oy=my-(my-oy)*(nz/z); z=nz; apply(); },{passive:false});
+
+  let dr=false,px=0,py=0,moved=false;
+  S.addEventListener('mousedown',e=>{
+    moved=false;
+    if(mode==='draw'){ const [lx,ly]=toLocal(e.clientX,e.clientY);
+      drawing={x0:lx,y0:ly,x1:lx,y1:ly}; return; }
+    dr=true; px=e.clientX; py=e.clientY; S.classList.add('drag');
+  });
+  window.addEventListener('mousemove',e=>{
+    if(drawing){ const [lx,ly]=toLocal(e.clientX,e.clientY);
+      drawing.x1=lx; drawing.y1=ly; paint(); return; }
+    if(!dr) return; moved=true;
+    ox+=e.clientX-px; oy+=e.clientY-py; px=e.clientX; py=e.clientY; apply();
+  });
+  window.addEventListener('mouseup',e=>{
+    if(drawing){
+      const a=toSheet(0,0);
+      const x0=Math.min(drawing.x0,drawing.x1)/scale, x1=Math.max(drawing.x0,drawing.x1)/scale,
+            y0=Math.min(drawing.y0,drawing.y1)/scale, y1=Math.max(drawing.y0,drawing.y1)/scale;
+      const d=drawing; drawing=null; paint();
+      if((x1-x0)>4 && (y1-y0)>4)
+        setValue({action:'draw',bbox:[Math.round(x0),Math.round(y0),
+                                      Math.round(x1),Math.round(y1)],nonce:++nonce});
+      return;
+    }
+    dr=false; S.classList.remove('drag');
+  });
+  S.addEventListener('click',e=>{
+    if(moved) return;
+    if(e.target===S||e.target===IMG){ sel=null; pick=[]; CARD.style.display='none'; paint(); }
+  });
+
+  // ---- render from Streamlit ----
+  window.addEventListener('message',e=>{
+    if(!e.data || e.data.type!=='streamlit:render') return;
+    announced=true;
+    const args=e.data.args||{};
+    const spec=args.spec;
+    if(!spec) return;
+    const first = !D;
+    D=spec; scale=spec.scale; mode=args.mode||mode;
+    const H=args.height||620;
+    WRAP.style.height=H+'px'; setHeight(H+4);
+    IMG.src=spec.uri; IMG.width=spec.vw; IMG.height=spec.vh;
+    OV.setAttribute('width',spec.vw); OV.setAttribute('height',spec.vh);
+    if(args.selected) sel=args.selected;
+    buildBar(); HINT.innerHTML=HINTS[mode];
+    S.className = mode==='draw'?'draw':(mode==='inspect'?'':mode);
+    const go=()=>{ paint(); if(first) fit(); else apply(); };
+    if(IMG.complete) go(); else IMG.onload=go;
+  });
+
+  // Streamlit matches component messages by iframe contentWindow, and only once
+  // its ComponentInstance has mounted. Announcing once on script load races that
+  // and the host logs "Received component message for unregistered
+  // ComponentInstance!". Keep announcing until the first render arrives.
+  let announced=false;
+  const hello=setInterval(()=>{
+    if(announced){ clearInterval(hello); return; }
+    post('streamlit:componentReady',{apiVersion:1});
+  },120);
+  post('streamlit:componentReady',{apiVersion:1});
+})();
+</script></body></html>

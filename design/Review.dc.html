@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <style>
+    :root{
+      --bg:#05070a; --s1:#0a0e14; --s2:#0e141c; --s3:#141c26;
+      --ln:rgba(125,205,255,.13); --ln2:rgba(125,205,255,.26);
+      --tx:#dbe7f0; --tx2:#7d94a8; --tx3:#4d6072;
+      --cy:oklch(.82 .13 210); --am:oklch(.82 .13 75);
+      --gn:oklch(.82 .13 155); --rd:oklch(.72 .15 25);
+      --mono:'IBM Plex Mono',ui-monospace,monospace;
+      --ui:'Space Grotesk',system-ui,sans-serif;
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--ui);}
+    a{color:var(--cy);text-decoration:none;} a:hover{color:#9fe9ff;}
+    .grid-bg{position:absolute;inset:0;pointer-events:none;
+      background-image:linear-gradient(rgba(125,205,255,.028) 1px,transparent 1px),
+                       linear-gradient(90deg,rgba(125,205,255,.028) 1px,transparent 1px);
+      background-size:52px 52px;}
+    .brk{position:relative;}
+    .brk::before,.brk::after{content:'';position:absolute;width:9px;height:9px;
+      border-color:var(--ln2);border-style:solid;pointer-events:none;}
+    .brk::before{left:-1px;top:-1px;border-width:1px 0 0 1px;}
+    .brk::after{right:-1px;bottom:-1px;border-width:0 1px 1px 0;}
+    .mono{font-family:var(--mono);}
+    .lbl{font:600 9px var(--ui);letter-spacing:.19em;text-transform:uppercase;color:var(--tx3);}
+  </style>
+</helmet>
+
+<div style="width:1440px;height:900px;background:var(--bg);position:relative;overflow:hidden;padding:22px">
+  <div class="grid-bg"></div>
+  <div style="position:relative;z-index:1;height:100%;display:flex;flex-direction:column">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
+      <span class="lbl" style="font-size:10px;color:var(--am)">REVIEW QUEUE · LOW CONFIDENCE</span>
+      <div style="flex:1;height:1px;background:var(--ln)"></div>
+      <div style="display:flex;align-items:center;gap:9px;padding:5px 12px;border:1px solid rgba(240,178,61,.35);background:rgba(240,178,61,.06)">
+        <div style="width:5px;height:5px;background:var(--am);box-shadow:0 0 8px var(--am)"></div>
+        <span class="mono" style="font-size:10.5px;color:var(--am)">4 FLAGGED OF 88</span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;flex:1;min-height:0">
+      <sc-for list="{{items}}" as="i" hint-placeholder-count="4">
+        <div class="brk" style="border:1px solid var(--ln);background:var(--s1);padding:16px;display:flex;gap:16px">
+          <div style="width:168px;flex:none;border:1px solid var(--ln2);background:#f2f4f6;position:relative;display:grid;place-items:center">
+            <svg viewBox="0 0 120 100" style="width:100%;height:100%">
+              <g stroke="#1a1f26" stroke-width="1.6" fill="none">
+                <path d="M10 50 H40 M80 50 H110"/>
+                <path d="M40 34 L40 66 L80 34 L80 66 Z"/>
+              </g>
+              <text x="46" y="24" font-family="IBM Plex Mono" font-size="9" fill="#1a1f26" transform="rotate(-90 46 24)">{{i.printed}}</text>
+              <rect x="34" y="28" width="52" height="44" fill="none" stroke="#e0602f" stroke-width="1.6" stroke-dasharray="3 2"/>
+            </svg>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+            <div class="lbl" style="margin-bottom:8px">Machine read</div>
+            <div class="mono" style="font-size:15px;color:var(--rd);margin-bottom:12px">{{i.read}}</div>
+            <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:13px">
+              <sc-for list="{{i.meta}}" as="m" hint-placeholder-count="3">
+                <div style="display:flex;justify-content:space-between;font-size:11px">
+                  <span style="color:var(--tx3)">{{m.k}}</span>
+                  <span class="mono" style="color:var(--tx2)">{{m.v}}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="flex:1"></div>
+            <div class="lbl" style="margin-bottom:6px">Correction</div>
+            <div style="display:flex;gap:7px">
+              <div style="flex:1;padding:8px 11px;border:1px solid var(--cy);background:rgba(77,216,240,.07)">
+                <span class="mono" style="font-size:12px;color:var(--cy)">{{i.fix}}</span>
+              </div>
+              <div style="padding:8px 14px;background:var(--gn);display:grid;place-items:center">
+                <span style="font:600 11px var(--ui);color:#04121a;letter-spacing:.06em">ACCEPT</span>
+              </div>
+              <div style="padding:8px 13px;border:1px solid var(--ln2);display:grid;place-items:center">
+                <span style="font:600 11px var(--ui);color:var(--tx3);letter-spacing:.06em">SKIP</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;margin-top:16px;padding:13px 18px;border:1px solid var(--ln);background:var(--s1);flex:none">
+      <span class="mono" style="font-size:11px;color:var(--tx2)">Corrections write straight into the graph and survive re-extraction.</span>
+      <div style="flex:1"></div>
+      <span class="mono" style="font-size:10.5px;color:var(--tx3)">EDIT LOG · 12 ENTRIES</span>
+      <div style="padding:7px 15px;border:1px solid var(--ln2)"><span class="mono" style="font-size:10.5px;color:var(--tx2)">UNDO LAST</span></div>
+      <div style="padding:7px 15px;background:var(--cy)"><span style="font:600 11px var(--ui);color:#04121a;letter-spacing:.06em">APPLY ALL</span></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props="{}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      items: [
+        { printed: "CS-91", read: "6-53", fix: "CS-91",
+          meta: [{ k: "symbol", v: "static mixer" }, { k: "confidence", v: "0.45" }, { k: "expected prefix", v: "CS" }] },
+        { printed: "V-2O3", read: "V-2O3", fix: "V-203",
+          meta: [{ k: "symbol", v: "control valve" }, { k: "confidence", v: "0.61" }, { k: "expected prefix", v: "V" }] },
+        { printed: "ZLO 433", read: "(nothing)", fix: "ZLO 433",
+          meta: [{ k: "symbol", v: "position switch" }, { k: "confidence", v: "0.00" }, { k: "expected prefix", v: "ZLO, ZLC" }] },
+        { printed: "IJ-07591", read: "ERV-7-11", fix: "IJ-07591",
+          meta: [{ k: "symbol", v: "ball valve" }, { k: "confidence", v: "0.52" }, { k: "expected prefix", v: "IJ" }] },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

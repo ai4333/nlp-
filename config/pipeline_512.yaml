@@ -1,0 +1,69 @@
+# Engineering Drawing Intelligence - pipeline configuration
+project:
+  name: edi
+  root: /Users/nikhilsridhara/nlp
+
+paths:
+  dataset:  data/raw/DigitizePID/DigitizePID_Dataset
+  pidqa:    data/raw/PIDQA
+  interim:  data/interim
+  tiles:    data/tiles512
+  graph:    data/graph
+  index:    data/index
+  models:   models
+  reports:  reports
+
+input:
+  render_dpi: 300
+  min_long_edge_px: 2500
+
+tiling:
+  tile_size: 512
+  stride: 384          # 25% overlap
+  min_box_visible: 0.4 # keep a box in a tile only if >=40% of its area survives the crop
+  pad_edges: true
+
+detection:
+  weights: models/yolo_pid.pt
+  imgsz: 1024
+  conf_threshold: 0.25
+  iou_threshold: 0.45
+  device: mps
+  merge_iou: 0.55      # global NMS across tile seams
+  review_below_conf: 0.50
+  n_classes: 32
+
+ocr:
+  engine: paddleocr
+  use_angle_cls: true
+  lang: en
+  min_confidence: 0.60
+  roi_pad_px: 85       # search radius around a symbol for its tag
+
+entity_resolution:
+  max_tag_distance_px: 150
+  fuzzy_threshold: 85
+  review_below: 0.70
+
+relations:
+  min_line_length_px: 25
+  max_line_gap_px: 14
+  junction_tolerance_px: 10
+  endpoint_snap_px: 28
+
+llm:
+  cypher_model: qwen3:8b
+  answer_model: qwen3:8b
+  vlm_model: qwen3-vl:8b
+  embed_model: bge-m3
+  temperature: 0.0
+  host: http://localhost:11434
+  num_ctx: 8192
+
+retrieval:
+  top_k: 8
+  fewshot_k: 6
+
+graph:
+  backend: kuzu
+  path: data/graph/edi_kg

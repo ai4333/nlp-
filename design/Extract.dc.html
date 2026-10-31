@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <style>
+    :root{
+      --bg:#05070a; --s1:#0a0e14; --s2:#0e141c; --s3:#141c26;
+      --ln:rgba(125,205,255,.13); --ln2:rgba(125,205,255,.26);
+      --tx:#dbe7f0; --tx2:#7d94a8; --tx3:#4d6072;
+      --cy:oklch(.82 .13 210); --am:oklch(.82 .13 75);
+      --gn:oklch(.82 .13 155); --rd:oklch(.72 .15 25);
+      --mono:'IBM Plex Mono',ui-monospace,monospace;
+      --ui:'Space Grotesk',system-ui,sans-serif;
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--ui);}
+    a{color:var(--cy);text-decoration:none;} a:hover{color:#9fe9ff;}
+    .grid-bg{position:absolute;inset:0;pointer-events:none;
+      background-image:linear-gradient(rgba(125,205,255,.028) 1px,transparent 1px),
+                       linear-gradient(90deg,rgba(125,205,255,.028) 1px,transparent 1px);
+      background-size:52px 52px;}
+    .brk{position:relative;}
+    .brk::before,.brk::after{content:'';position:absolute;width:9px;height:9px;
+      border-color:var(--ln2);border-style:solid;pointer-events:none;}
+    .brk::before{left:-1px;top:-1px;border-width:1px 0 0 1px;}
+    .brk::after{right:-1px;bottom:-1px;border-width:0 1px 1px 0;}
+    .mono{font-family:var(--mono);}
+    .lbl{font:600 9px var(--ui);letter-spacing:.19em;text-transform:uppercase;color:var(--tx3);}
+  </style>
+</helmet>
+
+<div style="width:1440px;height:900px;background:var(--bg);position:relative;overflow:hidden;padding:22px">
+  <div class="grid-bg"></div>
+  <div style="position:relative;z-index:1;display:grid;grid-template-columns:1.25fr 1fr;gap:22px;height:100%">
+    <div style="display:flex;flex-direction:column">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
+        <span class="lbl" style="font-size:10px;color:var(--cy)">EXTRACTION IN PROGRESS</span>
+        <div style="flex:1;height:1px;background:var(--ln)"></div>
+        <span class="mono" style="font-size:10.5px;color:var(--tx3)">BLUEPRINT MODE · NO DETECTOR REQUIRED</span>
+      </div>
+      <div class="brk" style="border:1px solid var(--ln);background:var(--s1);padding:18px 20px;margin-bottom:16px">
+        <div class="mono" style="font-size:12.5px;color:var(--tx);margin-bottom:3px">ALPHA-AA-0000-PR-FD-0000-02.pdf</div>
+        <div class="mono" style="font-size:10px;color:var(--tx3)">4964 × 3510 PX · SCANNED RASTER · 1 SHEET</div>
+      </div>
+      <div class="brk" style="border:1px solid var(--ln);background:var(--s1);padding:8px 20px 14px;flex:1">
+        <sc-for list="{{stages}}" as="s" hint-placeholder-count="6">
+          <div style="display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid rgba(125,205,255,.05)">
+            <div style="width:20px;height:20px;border:1.4px solid {{s.bd}};background:{{s.bg}};display:grid;place-items:center;flex:none;box-shadow:{{s.gl}}">
+              <div style="width:7px;height:7px;background:{{s.dot}}"></div>
+            </div>
+            <span style="font-size:12.5px;color:{{s.tc}};flex:1">{{s.n}}</span>
+            <span class="mono" style="font-size:10.5px;color:{{s.dc}}">{{s.d}}</span>
+          </div>
+        </sc-for>
+        <div style="margin-top:16px">
+          <div style="height:3px;background:rgba(125,205,255,.1);position:relative;overflow:hidden">
+            <div style="position:absolute;left:0;top:0;bottom:0;width:62%;background:var(--cy);box-shadow:0 0 12px var(--cy)"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:8px">
+            <span class="mono" style="font-size:10px;color:var(--tx3)">STAGE 3 OF 6</span>
+            <span class="mono" style="font-size:10px;color:var(--cy)">62%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
+        <span class="lbl">Live findings</span>
+        <div style="flex:1;height:1px;background:var(--ln)"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <sc-for list="{{counts}}" as="c" hint-placeholder-count="4">
+          <div style="border:1px solid var(--ln);background:var(--s1);padding:14px 16px">
+            <div class="lbl" style="margin-bottom:7px">{{c.k}}</div>
+            <div class="mono" style="font-size:26px;font-weight:600;color:{{c.c}};line-height:1">{{c.v}}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div class="brk" style="border:1px solid var(--ln);background:var(--s1);padding:14px 16px;flex:1;overflow:hidden">
+        <div class="lbl" style="margin-bottom:11px">Identified this pass</div>
+        <sc-for list="{{found}}" as="f" hint-placeholder-count="8">
+          <div style="display:flex;align-items:center;gap:11px;padding:6px 0">
+            <span class="mono" style="font-size:11.5px;color:var(--cy);width:110px">{{f.t}}</span>
+            <span style="font-size:11px;color:var(--tx2);flex:1">{{f.n}}</span>
+            <span class="mono" style="font-size:10px;color:var(--gn)">{{f.c}}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props="{}">
+class Component extends DCLogic {
+  renderVals() {
+    const done = { bd: "#3ee0a0", bg: "#3ee0a0", dot: "#04121a", tc: "#dbe7f0", dc: "#7d94a8", gl: "none" };
+    const run = { bd: "#4dd8f0", bg: "transparent", dot: "#4dd8f0", tc: "#4dd8f0", dc: "#4dd8f0", gl: "0 0 0 4px rgba(77,216,240,.14)" };
+    const wait = { bd: "rgba(125,205,255,.18)", bg: "transparent", dot: "transparent", tc: "#4d6072", dc: "#4d6072", gl: "none" };
+    return {
+      stages: [
+        { n: "Acquire · rasterise & normalise", d: "4964×3510", ...done },
+        { n: "Tile · overlapping windows", d: "15 tiles", ...done },
+        { n: "Read · OCR both orientations", d: "1 892 lines", ...run },
+        { n: "Identify · tag patterns & prefixes", d: "", ...wait },
+        { n: "Trace · pipe runs & networks", d: "", ...wait },
+        { n: "Build · knowledge graph", d: "", ...wait },
+      ],
+      counts: [
+        { k: "Text lines", v: "1 892", c: "#4dd8f0" },
+        { k: "Tags matched", v: "15", c: "#4dd8f0" },
+        { k: "Pipe runs", v: "453", c: "#3ee0a0" },
+        { k: "Needs review", v: "2", c: "#f0b23d" },
+      ],
+      found: [
+        { t: "V-1103A/B", n: "vessel / separator", c: "1.00" },
+        { t: "C-1105A/B", n: "compressor", c: "1.00" },
+        { t: "H-1104", n: "heater / exchanger", c: "1.00" },
+        { t: "MQ-1101", n: "pig launcher / receiver", c: "0.97" },
+        { t: "MY-1301", n: "process package", c: "1.00" },
+        { t: "JY-1102", n: "metering package", c: "1.00" },
+        { t: "V-1201", n: "vessel / separator", c: "0.94" },
+        { t: "H-1106", n: "heater / exchanger", c: "0.96" },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

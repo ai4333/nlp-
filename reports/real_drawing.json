@@ -1,0 +1,30 @@
+{
+ "sheet": "u_offshore_landscape_p1_60e11e",
+ "size": [
+  4964,
+  3510
+ ],
+ "n_text": 893,
+ "equipment_tags": [
+  "C-1102A/B",
+  "C-1103A/B",
+  "C-1105A/B",
+  "H-1104",
+  "H-1105A/B",
+  "JY-1102",
+  "MQ-1101",
+  "MY-1301",
+  "V-1103A/B",
+  "V-1104",
+  "V-1105A/B",
+  "V-1201",
+  "V-1301"
+ ],
+ "instrument_tags": [
+  "FC",
+  "LC"
+ ],
+ "h_runs": 214,
+ "v_runs": 239,
+ "nets": 165
+}

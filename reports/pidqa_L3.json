@@ -1,0 +1,26 @@
+{
+  "level": "L3_end_to_end",
+  "sheets": 2,
+  "n_questions": 48,
+  "overall_accuracy": 0.8542,
+  "executable_query_rate": 1.0,
+  "by_type": {
+    "simple_counting": {
+      "accuracy": 1.0,
+      "n": 12
+    },
+    "spatial_connection": {
+      "accuracy": 1.0,
+      "n": 12
+    },
+    "spatial_counting": {
+      "accuracy": 0.75,
+      "n": 12
+    },
+    "value_based": {
+      "accuracy": 0.6667,
+      "n": 12
+    }
+  },
+  "n_errors": 0
+}

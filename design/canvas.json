@@ -1,0 +1,14 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html",       "x": 0,    "y": 0,    "w": 1440, "h": 900, "title": "Workbench" },
+    { "file": "Graph.dc.html",      "x": 1540, "y": 0,    "w": 1440, "h": 900, "title": "Knowledge graph" },
+    { "file": "Extract.dc.html",    "x": 3080, "y": 0,    "w": 1440, "h": 900, "title": "Extraction" },
+    { "file": "Evaluation.dc.html", "x": 0,    "y": 1000, "w": 1440, "h": 900, "title": "Evaluation" },
+    { "file": "Review.dc.html",     "x": 1540, "y": 1000, "w": 1440, "h": 900, "title": "Review queue" }
+  ],
+  "annotations": [
+    { "id": "note-direction", "x": 3080, "y": 1000, "w": 340,
+      "text": "MISSION-CONTROL REGISTER\n\nData-dense and instrument-like rather than costume sci-fi.\n\n· Space Grotesk (UI) + IBM Plex Mono (all data)\n· Accents share chroma .13 / lightness .82 — only hue moves:\n  cyan 210 primary · amber 75 attention · green 155 nominal · red 25 fault\n· Corner brackets, 1px hairlines, faint 52px grid\n· No decorative gradients, no glow for its own sake\n\nEvery figure on these boards is real output from the system — the offshore sheet, its tags, and the measured benchmark." }
+  ],
+  "launch": { "view": "canvas" }
+}

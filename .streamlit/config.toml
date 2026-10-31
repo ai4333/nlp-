@@ -1,0 +1,17 @@
+# Streamlit paints its own widgets — checkboxes, sliders, spinners, focus rings,
+# progress bars — with `primaryColor`, and the default is a red that has nothing
+# to do with this design. Setting it here fixes every one of them at once
+# instead of overriding each in CSS.
+[theme]
+base = "dark"
+primaryColor = "#E2E8F0"
+backgroundColor = "#030303"
+secondaryBackgroundColor = "#0A0A0A"
+textColor = "#E2E8F0"
+font = "monospace"
+
+[server]
+headless = true
+
+[browser]
+gatherUsageStats = false

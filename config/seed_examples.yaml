@@ -1,0 +1,79 @@
+# Hand-written NL->Cypher exemplars for question shapes PIDQA does not cover.
+#
+# PIDQA's 64k questions are all CLASS-based ("how many class 7 symbols...").
+# The project's headline question is TAG-based ("what valves work with the
+# pipeline connected to P-101?").  Without exemplars the model invents pattern
+# comprehensions that Kuzu rejects, so these seed the retriever directly.
+examples:
+  - qtype: neighbour_by_tag
+    question: "What is connected to SDL 101?"
+    cypher: "MATCH (a:Symbol)-[:CONNECTED_TO]-(b:Symbol) WHERE a.tag = 'SDL 101' RETURN b.tag, b.name"
+  - qtype: neighbour_by_tag
+    question: "Which symbols are connected to the ZLO 433 instrument?"
+    cypher: "MATCH (a:Symbol)-[:CONNECTED_TO]-(b:Symbol) WHERE a.tag = 'ZLO 433' RETURN b.tag, b.name"
+  - qtype: neighbour_by_tag
+    question: "What valves work with the pipeline connected to P-101?"
+    cypher: "MATCH (a:Symbol)-[:CONNECTED_TO]-(b:Symbol) WHERE a.tag = 'P-101' AND b.name CONTAINS 'valve' RETURN b.tag, b.name"
+  - qtype: neighbour_by_class
+    question: "What is connected to the globe valves?"
+    cypher: "MATCH (a:Symbol)-[:CONNECTED_TO]-(b:Symbol) WHERE a.class = 3 RETURN b.tag, b.name"
+  - qtype: two_hop_by_tag
+    question: "What is two steps away from SDL 101?"
+    cypher: "MATCH (a:Symbol)-[:CONNECTED_TO]-(m:Symbol)-[:CONNECTED_TO]-(b:Symbol) WHERE a.tag = 'SDL 101' RETURN b.tag, b.name"
+  - qtype: list_by_class
+    question: "List all the ball valves on this sheet."
+    cypher: "MATCH (s:Symbol) WHERE s.class = 5 RETURN s.tag, s.name"
+  - qtype: degree
+    question: "Which symbol has the most connections?"
+    cypher: "MATCH (s:Symbol)-[:CONNECTED_TO]-(n:Symbol) RETURN s.tag, count(n) AS c ORDER BY c DESC LIMIT 5"
+  - qtype: control_loop
+    question: "What controls valve CD-31021?"
+    cypher: "MATCH (i:Symbol)-[:CONTROLS]->(v:Symbol) WHERE v.tag = 'CD-31021' RETURN i.tag, i.name"
+  - qtype: control_loop
+    question: "Which valves does SDL 101 control?"
+    cypher: "MATCH (i:Symbol)-[:CONTROLS]->(v:Symbol) WHERE i.tag = 'SDL 101' RETURN v.tag, v.name"
+  - qtype: control_loop
+    question: "List every control relationship on this sheet."
+    cypher: "MATCH (i:Symbol)-[:CONTROLS]->(v:Symbol) RETURN i.tag, v.tag, v.name"
+  - qtype: flow
+    question: "What does ZLO 433 feed into?"
+    cypher: "MATCH (a:Symbol)-[:FEEDS_TO]->(b:Symbol) WHERE a.tag = 'ZLO 433' RETURN b.tag, b.name"
+  - qtype: flow
+    question: "What feeds into the tank?"
+    cypher: "MATCH (a:Symbol)-[:FEEDS_TO]->(b:Symbol) WHERE b.name CONTAINS 'tank' RETURN a.tag, a.name"
+  - qtype: name_query
+    question: "How many vessels are there?"
+    cypher: "MATCH (s:Symbol) WHERE s.name CONTAINS 'vessel' RETURN count(s)"
+  - qtype: name_query
+    question: "What does the pig launcher connect to?"
+    cypher: "MATCH (a:Symbol)-[:CONNECTED_TO]-(b:Symbol) WHERE a.name CONTAINS 'pig launcher' RETURN b.tag, b.name"
+  - qtype: name_query
+    question: "List all the compressors."
+    cypher: "MATCH (s:Symbol) WHERE s.name CONTAINS 'compressor' RETURN s.tag, s.name"
+  - qtype: category
+    question: "How many instruments are there?"
+    cypher: "MATCH (s:Symbol) WHERE s.category = 'instrument' RETURN count(s)"
+  - qtype: category
+    question: "What pipe lines are on this drawing?"
+    cypher: "MATCH (s:Symbol) WHERE s.category = 'line' RETURN s.tag, s.name"
+  - qtype: category
+    question: "List all the valves"
+    cypher: "MATCH (s:Symbol) WHERE s.category = 'valve' RETURN s.tag, s.name"
+  - qtype: size
+    question: "Which lines are 4 inch or larger?"
+    cypher: "MATCH (s:Symbol) WHERE s.category = 'line' AND s.size_in >= 4 RETURN s.tag, s.size_in ORDER BY s.size_in DESC"
+  - qtype: size
+    question: "What is the largest line on this sheet?"
+    cypher: "MATCH (s:Symbol) WHERE s.category = 'line' RETURN s.tag, s.size_in ORDER BY s.size_in DESC LIMIT 1"
+  - qtype: offpage
+    question: "Where does this drawing continue?"
+    cypher: "MATCH (a:Symbol)-[:CONTINUES_ON]-(b:Symbol) RETURN a.tag, b.tag, b.sheet_id"
+  - qtype: offpage
+    question: "What are the off-page connectors on this sheet?"
+    cypher: "MATCH (s:Symbol) WHERE s.category = 'connector' RETURN s.tag, s.name"
+  - qtype: offpage
+    question: "Which other drawings does this one connect to?"
+    cypher: "MATCH (a:Symbol)-[:CONTINUES_ON]-(b:Symbol) RETURN DISTINCT b.sheet_id"
+  - qtype: count_all
+    question: "How many symbols are on this drawing?"
+    cypher: "MATCH (s:Symbol) RETURN count(s)"

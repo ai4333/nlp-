@@ -1,0 +1,130 @@
+# ---------------------------------------------------------------------------
+# Equipment identification from tag prefixes.
+#
+# On a real P&ID the TAG is the identity. An engineer says "V-1103A", never
+# "that bowtie shape". Prefix letters follow long-standing industry convention
+# (ISA-5.1 / typical EPC practice), so the equipment type can be read from the
+# tag itself — no symbol detector required.
+#
+# This is what makes a drawing queryable on day one, before any model is trained
+# on the customer's symbol legend.
+#
+# EDIT THIS per customer: most operators have a house convention, and it is
+# usually a one-page document their engineers can hand you in five minutes.
+# ---------------------------------------------------------------------------
+
+# Tag shapes accepted as equipment identifiers.
+patterns:
+  - '^[A-Z]{1,3}-[0-9]{3,5}([A-Z](/[A-Z])*)?$'     # V-1103A/B, C-1105A/B, H-1104
+  - '^[A-Z]{1,3}-[0-9]{1,2}-[0-9]{1,3}$'           # ERV-8-20
+  - '^[A-Z]{2,4}\s?[0-9]{3,4}$'                    # SDL 101, ZLO 433
+  - '^[A-Z]{1,3}[0-9]{4,6}$'                       # P101234
+
+# Prefix → what the item is.
+prefixes:
+  P:   {name: pump,                    category: equipment}
+  C:   {name: compressor,              category: equipment}
+  K:   {name: compressor,              category: equipment}
+  V:   {name: vessel / separator,      category: equipment}
+  D:   {name: drum,                    category: equipment}
+  T:   {name: tank,                    category: equipment}
+  TK:  {name: tank,                    category: equipment}
+  E:   {name: heat exchanger,          category: equipment}
+  H:   {name: heater / exchanger,      category: equipment}
+  R:   {name: reactor,                 category: equipment}
+  F:   {name: filter,                  category: equipment}
+  MQ:  {name: pig launcher / receiver, category: equipment}
+  JY:  {name: metering package,        category: equipment}
+  MY:  {name: process package,         category: equipment}
+  X:   {name: package unit,            category: equipment}
+
+  # valves
+  XV:  {name: on/off valve,            category: valve}
+  UV:  {name: solenoid valve,          category: valve}
+  PV:  {name: pressure control valve,  category: valve}
+  LV:  {name: level control valve,     category: valve}
+  FV:  {name: flow control valve,      category: valve}
+  TV:  {name: temperature control valve, category: valve}
+  CV:  {name: control valve,           category: valve}
+  HV:  {name: hand valve,              category: valve}
+  PSV: {name: pressure safety valve,   category: valve}
+  ERV: {name: relief valve,            category: valve}
+  RV:  {name: relief valve,            category: valve}
+  BDV: {name: blowdown valve,          category: valve}
+  SDV: {name: shutdown valve,          category: valve}
+
+  # instruments  (ISA: 1st letter = measured variable, later letters = function)
+  PT:  {name: pressure transmitter,    category: instrument}
+  PI:  {name: pressure indicator,      category: instrument}
+  PC:  {name: pressure controller,     category: instrument}
+  PIC: {name: pressure indicating controller, category: instrument}
+  LT:  {name: level transmitter,       category: instrument}
+  LI:  {name: level indicator,         category: instrument}
+  LC:  {name: level controller,        category: instrument}
+  LIC: {name: level indicating controller, category: instrument}
+  LG:  {name: level gauge,             category: instrument}
+  FT:  {name: flow transmitter,        category: instrument}
+  FI:  {name: flow indicator,          category: instrument}
+  FC:  {name: flow controller,         category: instrument}
+  FIC: {name: flow indicating controller, category: instrument}
+  TT:  {name: temperature transmitter, category: instrument}
+  TI:  {name: temperature indicator,   category: instrument}
+  TC:  {name: temperature controller,  category: instrument}
+  AT:  {name: analyser transmitter,    category: instrument}
+  XC:  {name: logic controller,        category: instrument}
+  ZLO: {name: position switch, open,   category: instrument}
+  ZLC: {name: position switch, closed, category: instrument}
+  SDL: {name: shutdown logic,          category: instrument}
+  RO:  {name: restriction orifice,     category: instrument}
+
+  # lines / annotation
+  INS: {name: insulation marking,      category: annotation}
+  FD:  {name: off-page connector,      category: connector}
+  L:   {name: line,                    category: line}
+
+# Text that is never an equipment tag, however tag-like it looks.
+exclude_patterns:
+  - '^(NOTE|NOTES|REV|REVISION|DWG|SHEET|SCALE|DATE|TITLE|PROJECT)'
+  - '^[0-9]+$'
+  - '^[0-9]+[.,][0-9]+$'
+
+# Service codes that must NOT be treated as line-number fragments, because they
+# are also legitimate instrument codes. ST is the only real collision in the
+# standard set: "steam" as a service, "speed transmitter" as an instrument.
+# Add a customer's own collisions here rather than editing code.
+ambiguous_service_codes:
+  - ST
+
+# ---------------------------------------------------------------------------
+# Pipe-line service codes — the middle letters of a line number
+# (12"-DC-11-185-P1A-HE  ->  service "DC").
+# Conventions differ between operators; this is the common EPC set. Replace it
+# with the customer's own legend sheet.
+# ---------------------------------------------------------------------------
+service_codes:
+  P:   {name: "process line"}
+  PL:  {name: "process liquid line"}
+  PG:  {name: "process gas line"}
+  PA:  {name: "process/air line"}
+  DC:  {name: "closed drain line"}
+  DO:  {name: "open drain line"}
+  VL:  {name: "vent line"}
+  VA:  {name: "vent to atmosphere"}
+  VH:  {name: "vent header"}
+  FL:  {name: "flare line"}
+  FG:  {name: "fuel gas line"}
+  RL:  {name: "relief line"}
+  IA:  {name: "instrument air line"}
+  UA:  {name: "utility air line"}
+  N:   {name: "nitrogen line"}
+  CW:  {name: "cooling water line"}
+  HW:  {name: "hot water line"}
+  ST:  {name: "steam line"}
+  CD:  {name: "condensate line"}
+  GL:  {name: "glycol line"}
+  MO:  {name: "methanol line"}
+  CH:  {name: "chemical injection line"}
+  WA:  {name: "water line"}
+  LD:  {name: "liquid drain line"}
+  YC:  {name: "utility line"}
+  VQ:  {name: "vent/quench line"}
