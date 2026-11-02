@@ -16,6 +16,7 @@ CLASSES = _ONT["classes"]
 CAT_COLOR = {
     "valve": "#5aa9ff", "instrument": "#ff9d5c", "fitting": "#7f8794",
     "actuator": "#c78bff", "equipment": "#4fd08a", "annotation": "#e3c05a",
+    "line": "#00e5ff", "connector": "#ff5252", "unknown": "#7f8794",
 }
 
 
@@ -29,12 +30,13 @@ def render(entities: list[dict], relations: list[dict], width: int, height: int,
     nodes = []
     for e in entities:
         x0, y0, x1, y1 = e["bbox"]
-        cat = CLASSES.get(e["pidqa_class"], {}).get("category", "fitting")
+        cat = e.get("category") or CLASSES.get(e["pidqa_class"], {}).get("category", "fitting")
+        name = e.get("name") or CLASSES.get(e["pidqa_class"], {}).get("name", f"class {e['pidqa_class']}")
         nodes.append({
             "id": e["id"],
             "x": round((x0 + x1) / 2 * scale, 1), "y": round((y0 + y1) / 2 * scale, 1),
             "t": e.get("tag") or "", "c": e["pidqa_class"], "cat": cat,
-            "n": CLASSES.get(e["pidqa_class"], {}).get("name", f"class {e['pidqa_class']}"),
+            "n": name,
             "col": CAT_COLOR.get(cat, "#7f8794"),
             "p": e["id"] in pathset,
         })
@@ -170,9 +172,14 @@ def render(entities: list[dict], relations: list[dict], width: int, height: int,
       l.setAttribute('stroke-width',(l.classList.contains('on')?2.2:1)/z));
   }}
   const ap=()=>{{gi.style.transform=`translate(${{ox}}px,${{oy}}px) scale(${{z}})`;rescale();}};
-  function fit(){{const r=gs.getBoundingClientRect();
-    z=Math.min(r.width/D.vw,r.height/D.vh)*0.93;
-    ox=(r.width-D.vw*z)/2;oy=(r.height-D.vh*z)/2;ap();}}
+  function fit(){{
+    const r=gs.getBoundingClientRect();
+    if(!r.width || !r.height || r.width <= 10 || r.height <= 10) return;
+    z=Math.min(r.width/D.vw, r.height/D.vh)*0.93;
+    if(!z || !isFinite(z) || z <= 0) z = 0.5;
+    ox=(r.width-D.vw*z)/2; oy=(r.height-D.vh*z)/2;
+    ap();
+  }}
   gs.addEventListener('wheel',e=>{{e.preventDefault();
     const r=gs.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
     const f=e.deltaY<0?1.14:1/1.14,nz=Math.max(.1,Math.min(12,z*f));
@@ -182,6 +189,28 @@ def render(entities: list[dict], relations: list[dict], width: int, height: int,
   window.addEventListener('mouseup',()=>{{dr=false;gs.classList.remove('drag');}});
   window.addEventListener('mousemove',e=>{{if(!dr)return;ox+=e.clientX-px;oy+=e.clientY-py;px=e.clientX;py=e.clientY;ap();}});
   gs.addEventListener('click',e=>{{if(e.target===gs||e.target===sv){{sel=null;gc.style.display='none';draw();}}}});
-  draw();fit(); if(D.focus) pick(D.focus);
+  draw();
+  fit();
+  if(window.ResizeObserver){{
+    const ro = new ResizeObserver(entries => {{
+      for(const entry of entries){{
+        if(entry.contentRect.width > 20 && entry.contentRect.height > 20){{
+          fit();
+        }}
+      }}
+    }});
+    ro.observe(gs);
+  }}
+  let fitTries = 0;
+  const checkTimer = setInterval(() => {{
+    fitTries++;
+    const r = gs.getBoundingClientRect();
+    if(r.width > 20 && r.height > 20){{
+      fit();
+      if(fitTries > 5) clearInterval(checkTimer);
+    }}
+    if(fitTries > 30) clearInterval(checkTimer);
+  }}, 250);
+  if(D.focus) pick(D.focus);
 }})();
 </script>"""
